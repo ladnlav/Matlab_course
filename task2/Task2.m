@@ -29,4 +29,19 @@ savefig('Frame_Corr.fig')
 save('Frame_search.mat', 'Start_Of_Frame_Position', 'Number_of_frame')
 
 
-%%
+%% Задание 2. Генератор псевдослучайной последовательности
+%Функция Scrambler написана в файле "Scrambler.m"
+
+Register = [1 0 0 1 0 1 0 1 0]; % начальное состояние регистра
+sequence = Scrambler(Register); % генерация последовательности
+acf = autocorr(sequence); % вычисление автокорреляционной функции
+
+figure;
+plot(acf, 'LineWidth', 1.5);
+title('Autocorrelation Function of Scrambler Output');
+xlabel('Bit Offset');
+ylabel('Autocorrelation');
+saveas(gcf, 'ACF_Srambler.fig');
+
+[~, max_index] = max(acf(2:end)); % поиск максимального значения автокорреляции
+PN_Period = max_index % вывод периода повторения
