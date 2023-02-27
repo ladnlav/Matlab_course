@@ -21,7 +21,6 @@ Number_of_frame = length(Indexes_of_frames);
 % Строим график корреляции и сохраняем его в файл
 figure
 plot(res_cor)
-%xticks(0:10:10000); % установка значения для отображения на оси x
 title('Корреляционный анализ битовой последовательности')
 xlabel('Номер бита')
 ylabel('Корреляция')
@@ -38,12 +37,7 @@ Register = [1 0 0 1 0 1 0 1 0]; % начальное состояние реги
 sequence = Scrambler(Register); % генерация последовательности
 
 %Функция циклической автокорреляции
-N=length(sequence);
-acf = zeros(1, N);
-for itter = 1:N
-    acf(itter) = sum(sequence.*circshift(sequence, itter-1))/N;
-end
-acf = acf / acf(1); % нормализация
+acf = cyclic_autocorr(sequence);
 
 figure;
 plot(acf, 'LineWidth', 1.5);
@@ -54,3 +48,17 @@ saveas(gcf, 'ACF_Srambler.fig');
 
 [~, max_index] = max(acf(2:end)); % поиск максимального значения автокорреляции
 PN_Period = max_index; % вывод периода повторения
+
+% функция для расчета циклической автокорреляции сигнала
+function acf = cyclic_autocorr(signal)
+    % определяем длину сигнала
+    N = length(signal);
+
+    % вычисляем циклическую автокорреляцию
+    acf = zeros(1, N);
+    for itter = 1:N
+        acf(itter) = sum(signal.*circshift(signal, itter-1))/N;
+    end
+    % нормализация
+    acf = acf / acf(1); 
+end
