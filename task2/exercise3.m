@@ -108,7 +108,7 @@ function FilteredNoisedSignal = FilterSignal(NoisedSignal)
     NoisedSignalSpec=fft(NoisedSignal);
     % Задаем фильтр
     filter = zeros(128, 1);
-    filter(16:54) = 1;
+    filter(1:70) = 1;
     % Вычисляем отфильтрованный сигнал
     FilteredNoisedSignal = ifft(NoisedSignalSpec.* filter);
 end
