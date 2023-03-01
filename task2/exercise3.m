@@ -85,6 +85,35 @@ end
 disp(['SNR нефильтрованного сигнала: ' num2str(SNR_NoisedSignal) ' дБ']);
 disp(['SNR отфильтрованного сигнала: ' num2str(SNR_FilteredNoisedSignal) ' дБ']);
 
+%% Выигрыш по SNR между фильтрованным и нефильтрованным сигналами
+
+K=1000;
+Gain = zeros(K, 1);
+for itter = 1:K
+    SNR=itter;
+    [NoisedSignal,Noise]=NoiseGenerator(SNR,Signal);
+    FilteredNoisedSignal=FilterSignal(NoisedSignal);
+
+    % Разделение фильтрованного сигнала и шума
+    FilteredNoise = FilteredNoisedSignal - NoisedSignal;
+
+    % Расчет SNR для исходного зашумленного сигнала
+    SNR_NoisedSignal = 10 * log10(PowerSignal(NoisedSignal) / PowerSignal(Noise));
+
+    % Расчет SNR для отфильтрованного сигнала
+    SNR_FilteredNoisedSignal = 10 * log10(PowerSignal(FilteredNoisedSignal) / PowerSignal(FilteredNoise));
+
+    %Учет выигрыша
+    Gain(itter)=abs(SNR_NoisedSignal-SNR_FilteredNoisedSignal);
+end
+
+figure;
+plot(Gain);     %График Gain
+hold on;
+title("SNR Gain from input SNR");
+xlabel('Input SNR');
+ylabel('SNR Gain');
+saveas(gcf, 'SNR Gain.png');
 %% Функции
 
 function P = PowerSignal(Signal)
