@@ -113,7 +113,7 @@ hold on;
 title("SNR Gain from input SNR");
 xlabel('Input SNR');
 ylabel('SNR Gain');
-saveas(gcf, 'SNR Gain.png');
+%saveas(gcf, 'SNR Gain.png');
 %% Функции
 
 function P = PowerSignal(Signal)

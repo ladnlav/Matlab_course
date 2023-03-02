@@ -49,6 +49,13 @@ saveas(gcf, 'ACF_Srambler.fig');
 [~, max_index] = max(acf(2:end)); % поиск максимального значения автокорреляции
 PN_Period = max_index; % вывод периода повторения
 
+figure;
+plot(sequence);
+
+
+
+%% 
+
 % функция для расчета циклической автокорреляции сигнала
 function acf = cyclic_autocorr(signal)
     % определяем длину сигнала
