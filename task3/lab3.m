@@ -9,7 +9,6 @@ Y = abs(fft(y)); % применение FFT
 Y1=Y(1:(length(y)/2));
 f=(0:(length(y)/2)-1);
 
-
 % построение графика амплитудного спектра
 figure;
 subplot(2,1,1);
@@ -22,9 +21,12 @@ ylabel('Амплитуда');
 [~,idx] = sort(Y1,'descend');
 top_harmonics = f(idx(1:3)); % выбор трех ярких гармоник
 
+% Вывод результата
+disp(['Частоты поврежденных гармоник: ', num2str(sort(top_harmonics)), ' Гц']);
+
 %Пункт 2: Отфильтровать аудиофайл так, чтоб снизить помехи
 % создание фильтра для ярких гармоник
-freq_tol = 2; % ширина полосы частот вокруг гармоники, которую мы оставим в сигнале
+freq_tol = 0; % ширина полосы частот вокруг гармоники, которую мы оставим в сигнале
 harmonic_filter = zeros(size(Y));
 for k = 1:length(top_harmonics)
     harmonic_idx = find(f >= (top_harmonics(k)-freq_tol) & f <= (top_harmonics(k)+freq_tol));
@@ -32,7 +34,7 @@ for k = 1:length(top_harmonics)
 end
 
 % применение фильтра к сигналу
-y_filtered = real(ifft(Y.*harmonic_filter));
+y_filtered = real(ifft(y.*harmonic_filter));
 y_filtered=y_filtered./max(y_filtered);
 % вывод исходного и отфильтрованного сигнала
 figure;
@@ -117,6 +119,8 @@ xlabel('Частота, Гц');
 ylabel('Амплитуда');
 title('Спектр обрезанного сигнала');
 
+audiowrite('xsin.wav', x./max(x), fs);
+audiowrite('xsin_clipped.wav', x_clip./max(x_clip), fs);
 %Проанализируйте, как это отразится на характеристиках сигнала
 % Как видно на графиках спектров двух сигналов, после клиппинга появилась
 % побочная гармоника на частоте примерно в 500 Гц. В исходном сигнале её
