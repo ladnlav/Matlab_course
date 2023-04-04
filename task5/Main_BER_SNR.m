@@ -1,7 +1,7 @@
 close all; clear; clc;
 %% Init parametrs of model
 Length_Bit_vector = 1e5;
-rng(656); % Fix the seed of the random number generator
+rng(321); % Fix the seed of the random number generator
 
 Constellation = "16QAM"; % BPSK, QPSK, 8PSK, 16QAM
 
@@ -15,15 +15,13 @@ Bit_Tx = generateBits(Constellation,Length_Bit_vector);
 
 IQ_TX = mapping(Bit_Tx, Constellation);
 
-%plot_const(Constellation,IQ_TX);
+%plot_const(Constellation);
 %% Channel
 % Write your own function Eb_N0_convert(), which convert SNR to Eb/N0
 Eb_N0 = Eb_N0_convert(SNR, Constellation);
 
 % Use your own function of generating of AWGN from previous tasks
 IQ_RX = Noise(SNR, IQ_TX);
-%plot_const(Constellation,IQ_RX);
-
 %% Demapping
 Bit_Rx = demapping(IQ_RX, Constellation);
 
@@ -65,40 +63,31 @@ for p = 1:length(constellations)
     BERm_all(:,p)=BERm;
     EbN0_all(:,p)=EbN0;
 
-    figure('Position', [100 0 1000 1000]);
-    subplot(2, 2, 1);
-    plot(SNR, BERm,'r','LineWidth',1.5);
-    set(gca, 'YScale', 'log');
-    xlabel('SNR (dB)');
-    ylabel('BER');
-    title(['Зависимость BER от SNR для ' Constellation]);
-    grid on;
-
-    subplot(2, 2, 2);
-    plot(EbN0, BERm,'b','LineWidth',1.5);
-    set(gca, 'YScale', 'log');
-    xlabel('Eb/N0 (dB)');
-    ylabel('BER');
-    title(['Экспериментальный BER от Eb/N0 для ' Constellation]);
-    grid on;
+    figure('Position', [100 0 1720 500]);
+    subplot(1, 2, 1);
     
+    lastNonZero = find(BERm ~= 0, 1, 'last');
+    BERm(lastNonZero+1:end) = 4.000000000000000e-323;
 
-% Theoretical lines of BER(Eb/N0)
-% Read about function erfc(x) or similar
-% Configure the function and get the theoretical lines of BER(Eb/N0)
-% Compare the experimental BER(Eb/N0) and theoretical for BPSK, QPSK, 8PSK
-% and 16QAM constellation
-% Save figure
-
+    plot(SNR, BERm,'r','LineWidth',1.5);
+    hold on;
+    plot(EbN0, BERm,'b','LineWidth',1.5);
+    hold on;
     EbN0_c = 10.^(EbN0/10);
     BERt = 1/2.*erfc(sqrt(EbN0_c));
-    subplot(2, 2, 4);
+    
+    lastNonZero = find(BERt ~= 0, 1, 'last');  
+    BERt(lastNonZero+1:end) = 4.000000000000000e-323;
     plot(EbN0, BERt,'g','LineWidth',1.5);
-    set(gca, 'YScale', 'log');
-    xlabel('Eb/N0 (dB)');
-    ylabel('BER');
-    title(['Теоретический BER от Eb/N0 для ' Constellation]);
+    hold on;
+    legend('Зависимость BER от SNR','Экспериментальный BER от Eb/N0', ...
+        'Теоретический BER от Eb/N0', 'Location','southwest');
+    %set(gca, 'YScale', 'log');
+    title(['Зависимости для ' Constellation]);
     grid on;
+    xlabel('SNR/Eb_N0 (dB)');
+    ylabel('BER');
+    xlim([-50 50]);
 
 %% Additional task. Modulation error ration
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5MER_estimation = MER_my_func(IQ_RX, Constellation);
@@ -109,7 +98,7 @@ for p = 1:length(constellations)
 % You can use the cycle for collecting of data
 % Save figure
 
-    subplot(2, 2, 3);
+    subplot(1, 2, 2);
     plot(SNR, abs(MERm-SNR),'magenta','LineWidth',1.5);
     xlabel('SNR (dB)');
     ylabel('Error(MERm-SNR)');
@@ -129,7 +118,7 @@ hold on;
 plot(EbN0_all(:,3), BERm_all(:,3),'g','LineWidth',2);
 hold on;
 plot(EbN0_all(:,4), BERm_all(:,4),'black','LineWidth',2);
-legend("BPSK", "QPSK", "8PSK", "16QAM");
+legend("BPSK", "QPSK", "8PSK", "16QAM", 'Location','southwest');
 set(gca, 'YScale', 'log');
 xlabel('Eb/N0 (dB)');
 ylabel('BER');
@@ -140,61 +129,46 @@ name="All in One.png";
 saveas(gcf,name);
 %% Functions
 
-%PLOT CONSTELLATION
-function plot_const(constellation,IQ)
-    [Dictionary, bit_depth] = constellation_func(constellation);
+function plot_const(const_type)
+% Plot constellation diagram for specified type (BPSK, QPSK, 8PSK, or 16-QAM)
 
-    % Plot the output constellation
-    % Find the unique points in the IQ space
-    uniqueIQ = unique(IQ);
-  
-    if size(uniqueIQ,2)>(bit_depth*bit_depth)
-        figure();
-        ax=axes();
-        % Plot only the unique points in the IQ space
-        scatter(ax,real(uniqueIQ), imag(uniqueIQ), 5, 'g', 'filled');
-        hold on;
-    
-        dict_bits=demapping(Dictionary,constellation);
-        dict_bits=reshape(dict_bits, bit_depth, [])';
-        
-        scatter(ax,real(Dictionary), imag(Dictionary), 50, 'r*');
-        hold on;
-        % Add constellation symbols to the plot below each unique point
-        text(real(Dictionary), imag(Dictionary)-0.05, num2str(dict_bits), ...
-            'HorizontalAlignment', 'center');
-    else 
-        figure();
-        ax=axes();
-        % Plot only the unique points in the IQ space
-        scatter(ax,real(uniqueIQ), imag(uniqueIQ), 100, 'g', 'filled');
-        hold on;
-    
-        unique_bits=demapping(uniqueIQ,constellation);
-        unique_bits=reshape(unique_bits, bit_depth, [])';
+% Get constellation points and depth
+[points,~] = constellation_func(const_type);
 
-        % Add constellation symbols to the plot below each unique point
-        text(real(uniqueIQ), imag(uniqueIQ)-0.05, num2str(unique_bits), ...
-            'HorizontalAlignment', 'center');
-    end
-    
-    xL = [min(real(IQ)) max(real(IQ))];
-    yL = [min(imag(IQ)) max(imag(IQ))];
-    xlim(xL + [-1 1]);
-    ylim(yL + [-1 1]);
+% Map bit sequences to constellation points
+num_points = length(points);
+bits_m = de2bi(0:num_points-1, log2(num_points), 'left-msb')';
+bits=bits_m(:)';
+mapped_points = mapping(bits,const_type);
 
-    % Add arrows to the x and y axes using xlim and ylim values
-    line([0 0], [0 100], 'Color', 'k');
-    line([100 0], [0 0], 'Color', 'k');
-    line([0 0], [0 -100], 'Color', 'k');
-    line([-100 0], [0 0], 'Color', 'k');
-    hold off;
-    grid on;
-    title(constellation);
-    xlabel('In-Phase');
-    ylabel('Quadrature');
+% Plot points on IQ plane
+figure;
+scatter(real(mapped_points), imag(mapped_points),100, 'g', 'filled');
+hold on;
+title(sprintf('%s Constellation Diagram', upper(const_type)));
+
+% Label points with encoded bit sequence
+for i = 1:num_points
+    text(real(points(i)), imag(points(i))-0.15, ...
+         sprintf('%s', num2str(bits_m(:,i))), ...
+         'HorizontalAlignment', 'center', 'VerticalAlignment', 'middle');
 end
 
+xL = [min(real(points)) max(real(points))];
+yL = [min(imag(points)) max(imag(points))];
+xlim(xL + [-1 1]);
+ylim(yL + [-1 1]);
+
+% Add arrows to the x and y axes using xlim and ylim values
+line([0 0], [0 100], 'Color', 'k');
+line([100 0], [0 0], 'Color', 'k');
+line([0 0], [0 -100], 'Color', 'k');
+line([-100 0], [0 0], 'Color', 'k');
+hold off;
+grid on;
+xlabel('In-Phase');
+ylabel('Quadrature');
+end
 
 %FLOWBITS_GEN
 function bits = generateBits(constellation,Length_Bit_vector)

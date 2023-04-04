@@ -10,12 +10,12 @@ function [Dictionary, Bit_depth_Dict] = constellation_func(Constellation)
             Dictionary = [-1-1i -1+1i 1-1i 1+1i];
             Bit_depth_Dict = 2;
         case '8PSK'
-            gray_map = [0 1 3 2 7 6 4 5];
-            Dictionary = exp(1i*(gray_map*2*pi/8 - pi/4));
+            gray_map = [5 4 2 3 6 7 1 0];
+            Dictionary = exp(1i*(gray_map*2*pi/8));
             Bit_depth_Dict = log2(8);
         case '16QAM'
-            Dictionary = [-3-3i, -3-1i, -3+3i, -3+1i, -1-3i, -1-1i, -1+3i, ... 
-                -1+1i, 3-3i, 3-1i, 3+3i, 3+1i, 1-3i, 1-1i, 1+3i, 1+1i];
+            Dictionary = [-3+3i, -3+1i, -3-3i, -3-1i, -1+3i, -1+1i, -1-3i, ... 
+                -1-1i, 3+3i, 3+1i, 3-3i, 3-1i, 1+3i, 1+1i, 1-3i, 1-1i];
             Bit_depth_Dict = 4;
     end
  % Normalise the constellation.

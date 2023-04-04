@@ -13,6 +13,27 @@ b = fir1(N, Wn, 'low'); % FIR filter coefficients
 
 % Apply the filter to the input signal
 x = filter(b, 1, x);
+%% 
+% Compute the frequency response of the filter
+[H, f] = freqz(b, 1, 1024, fs);
+
+% Plot the magnitude response of the filter
+figure;
+plot(f, abs(H));
+xlabel('Frequency (Hz)');
+ylabel('Magnitude');
+title('Frequency Response of FIR Low-Pass Filter');
+grid on;
+
+% Find the passband indices
+passband_indices = find(f <= fc);
+
+% Compute the passband ripple
+passband_ripple = max(abs(abs(H(passband_indices)) - 1))
+
+% Convert the passband ripple to decibels
+passband_ripple_dB = 20*log10(passband_ripple)
+%% 
 
 % Apply window function
 w = hamming(length(x));
