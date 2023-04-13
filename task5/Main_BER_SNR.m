@@ -66,8 +66,8 @@ for p = 1:length(constellations)
     figure('Position', [100 0 1720 500]);
     subplot(1, 2, 1);
     
-    lastNonZero = find(BERm ~= 0, 1, 'last');
-    BERm(lastNonZero+1:end) = 4.000000000000000e-323;
+    %lastNonZero = find(BERm ~= 0, 1, 'last');
+    %BERm(lastNonZero+1:end) = 4.000000000000000e-323;
 
     plot(SNR, BERm,'r','LineWidth',1.5);
     hold on;
@@ -76,13 +76,13 @@ for p = 1:length(constellations)
     EbN0_c = 10.^(EbN0/10);
     BERt = 1/2.*erfc(sqrt(EbN0_c));
     
-    lastNonZero = find(BERt ~= 0, 1, 'last');  
-    BERt(lastNonZero+1:end) = 4.000000000000000e-323;
+    %lastNonZero = find(BERt ~= 0, 1, 'last');  
+    %BERt(lastNonZero:end) = 4.000000000000000e-323;
     plot(EbN0, BERt,'g','LineWidth',1.5);
     hold on;
     legend('Зависимость BER от SNR','Экспериментальный BER от Eb/N0', ...
         'Теоретический BER от Eb/N0', 'Location','southwest');
-    %set(gca, 'YScale', 'log');
+    set(gca, 'YScale', 'log');
     title(['Зависимости для ' Constellation]);
     grid on;
     xlabel('SNR/Eb_N0 (dB)');
