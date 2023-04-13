@@ -87,6 +87,7 @@ for p = 1:length(constellations)
     grid on;
     xlabel('SNR/Eb_N0 (dB)');
     ylabel('BER');
+    ylim([10^(-5) 10^(0)]);
     xlim([-50 50]);
 
 %% Additional task. Modulation error ration
