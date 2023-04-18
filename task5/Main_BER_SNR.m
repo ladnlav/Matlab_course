@@ -1,6 +1,6 @@
 close all; clear; clc;
 %% Init parametrs of model
-Length_Bit_vector = 1e5;
+Length_Bit_vector = 1e6;
 rng(321); % Fix the seed of the random number generator
 
 Constellation = "16QAM"; % BPSK, QPSK, 8PSK, 16QAM
@@ -38,8 +38,10 @@ BER = Error_check(Bit_Tx, Bit_Rx);
 
 constellations = ["BPSK", "QPSK", "8PSK", "16QAM"];
 
-SNR = -50:0.05:50;
+SNR = -10:0.05:20;
+BERt_all=zeros(size(SNR,2),size(constellations,2));
 BERm_all=zeros(size(SNR,2),size(constellations,2));
+
 EbN0_all=zeros(size(SNR,2),size(constellations,2));
 
 
@@ -73,9 +75,25 @@ for p = 1:length(constellations)
     hold on;
     plot(EbN0, BERm,'b','LineWidth',1.5);
     hold on;
-    EbN0_c = 10.^(EbN0/10);
-    BERt = 1/2.*erfc(sqrt(EbN0_c));
     
+    switch Constellation
+    case "BPSK"
+        EbN0_c = 10.^(EbN0/10);
+        BERt = 1/2.*erfc(sqrt(EbN0_c));
+    case "QPSK"
+        EbN0_c = 10.^(EbN0/10);
+        BERt = 1/2.*erfc(sqrt(EbN0_c));
+    case "8PSK"
+        EbN0_c = 10.^(EbN0/10);
+        BERt = 1/3.*erfc(sqrt(3.*EbN0_c)*sin(pi/8));
+    case  "16QAM"
+        EbN0_c = 10.^(EbN0/10);
+        BERt = 1/4.*3/2.*erfc(sqrt(4.*EbN0_c./10));
+    otherwise
+        disp('incorrect const')
+    end
+    
+    BERt_all(:,p)=BERt;
     %lastNonZero = find(BERt ~= 0, 1, 'last');  
     %BERt(lastNonZero:end) = 4.000000000000000e-323;
     plot(EbN0, BERt,'g','LineWidth',1.5);
@@ -88,7 +106,7 @@ for p = 1:length(constellations)
     xlabel('SNR/Eb_N0 (dB)');
     ylabel('BER');
     ylim([10^(-5) 10^(0)]);
-    xlim([-50 50]);
+    xlim([-10 20]);
 
 %% Additional task. Modulation error ration
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5MER_estimation = MER_my_func(IQ_RX, Constellation);
@@ -109,7 +127,6 @@ for p = 1:length(constellations)
     name=Constellation+"_BER от SNR и от Eb_N0 и MER.png";
     saveas(gcf,name);
 end
-
 %% All in one
 figure();
 plot(EbN0_all(:,1), BERm_all(:,1),'r','LineWidth',2);
@@ -127,6 +144,7 @@ title('Зависимость BER от Eb/N0 для ' + strjoin(constellations,'
 grid on;
 hold on;
 name="All in One.png";
+xlim([-10 15]);
 saveas(gcf,name);
 %% Functions
 
