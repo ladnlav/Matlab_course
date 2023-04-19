@@ -1,6 +1,6 @@
 close all; clear; clc;
 %% Init parametrs of model
-Length_Bit_vector = 1e6;
+Length_Bit_vector = 1e7;
 rng(321); % Fix the seed of the random number generator
 
 Constellation = "16QAM"; % BPSK, QPSK, 8PSK, 16QAM
@@ -76,6 +76,7 @@ for p = 1:length(constellations)
     plot(EbN0, BERm,'b','LineWidth',1.5);
     hold on;
     
+    %NOTE: using qfunc is also possible here
     switch Constellation
     case "BPSK"
         EbN0_c = 10.^(EbN0/10);
@@ -86,13 +87,20 @@ for p = 1:length(constellations)
     case "8PSK"
         EbN0_c = 10.^(EbN0/10);
         BERt = 1/3.*erfc(sqrt(3.*EbN0_c)*sin(pi/8));
+        %with qfunc:
+        %BERt = 2/log2(8).*qfunc(sqrt(2*log2(8).*EbN0_c)*sin(pi/8));
     case  "16QAM"
         EbN0_c = 10.^(EbN0/10);
-        BERt = 1/4.*3/2.*erfc(sqrt(4.*EbN0_c./10));
+        %formul from site: https://www.etti.unibw.de/labalive/experiment/qam/
+        BERt = 2/log2(16)*(1-1/sqrt(16)).*erfc(sqrt(3*log2(16)/(2*(16-1)).*EbN0_c));
+        %formul from pdf with erfc:
+        %BERt = 2/log2(16).*erfc(sqrt(3*log2(16)/(2*(16-1)).*EbN0_c));
+        %formul from pdf with qfunc:
+        %BERt = 4/log2(16).*qfunc(sqrt(3*log2(16)/(16-1).*EbN0_c));
     otherwise
         disp('incorrect const')
     end
-    
+
     BERt_all(:,p)=BERt;
     %lastNonZero = find(BERt ~= 0, 1, 'last');  
     %BERt(lastNonZero:end) = 4.000000000000000e-323;
