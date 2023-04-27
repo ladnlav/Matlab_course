@@ -1,6 +1,6 @@
 close all; clear; clc;
 %% Init parametrs of model
-Length_Bit_vector = 1e7;
+Length_Bit_vector = 1e6;
 rng(321); % Fix the seed of the random number generator
 
 Constellation = "16QAM"; % BPSK, QPSK, 8PSK, 16QAM
@@ -38,9 +38,10 @@ BER = Error_check(Bit_Tx, Bit_Rx);
 
 constellations = ["BPSK", "QPSK", "8PSK", "16QAM"];
 
-SNR = -10:0.05:20;
+SNR = -40:0.05:20;
 BERt_all=zeros(size(SNR,2),size(constellations,2));
 BERm_all=zeros(size(SNR,2),size(constellations,2));
+Merm_all=zeros(size(SNR,2),size(constellations,2));
 
 EbN0_all=zeros(size(SNR,2),size(constellations,2));
 
@@ -64,6 +65,7 @@ for p = 1:length(constellations)
     toc
     BERm_all(:,p)=BERm;
     EbN0_all(:,p)=EbN0;
+    Merm_all(:,p)=MERm;
 
     figure('Position', [100 0 1720 500]);
     subplot(1, 2, 1);
@@ -135,7 +137,7 @@ for p = 1:length(constellations)
     name=Constellation+"_BER от SNR и от Eb_N0 и MER.png";
     saveas(gcf,name);
 end
-%% All in one
+%% All in one (AiO)
 figure();
 plot(EbN0_all(:,1), BERm_all(:,1),'r','LineWidth',2);
 hold on;
@@ -151,8 +153,44 @@ ylabel('BER');
 title('Зависимость BER от Eb/N0 для ' + strjoin(constellations,', '));
 grid on;
 hold on;
-name="All in One.png";
-xlim([-10 15]);
+name="AiO BER(Eb_N0).png";
+xlim([-10 20]);
+saveas(gcf,name);
+
+figure();
+plot(SNR, BERm_all(:,1),'r','LineWidth',2);
+hold on;
+plot(SNR, BERm_all(:,2),'b','LineWidth',2);
+hold on;
+plot(SNR, BERm_all(:,3),'g','LineWidth',2);
+hold on;
+plot(SNR, BERm_all(:,4),'black','LineWidth',2);
+legend("BPSK", "QPSK", "8PSK", "16QAM", 'Location','southwest');
+set(gca, 'YScale', 'log');
+xlabel('Eb/N0 (dB)');
+ylabel('BER');
+title('Зависимость BER от Eb/N0 для ' + strjoin(constellations,', '));
+grid on;
+hold on;
+name="AiO BER(SNR).png";
+xlim([-10 20]);
+saveas(gcf,name);
+
+figure();
+plot(SNR, abs(Merm_all(:,1).'-SNR),'r','LineWidth',2);
+hold on;
+plot(SNR, abs(Merm_all(:,2).'-SNR),'b','LineWidth',2);
+hold on;
+plot(SNR, abs(Merm_all(:,3).'-SNR),'g','LineWidth',2);
+hold on;
+plot(SNR, abs(Merm_all(:,4).'-SNR),'black','LineWidth',2);
+legend("BPSK", "QPSK", "8PSK", "16QAM", 'Location','southwest');
+xlabel('SNR (dB)');
+ylabel('Error(MERm-SNR)');
+title('Ошибка между SNR и MER для' + strjoin(constellations,', '));
+grid on;
+hold on;
+name="AiO MER(SNR).png";
 saveas(gcf,name);
 %% Functions
 
