@@ -15,13 +15,15 @@ Bit_Tx = generateBits(Constellation,Length_Bit_vector);
 
 IQ_TX = mapping(Bit_Tx, Constellation);
 
-%plot_const(Constellation);
+%plot_const("16QAM");
 %% Channel
 % Write your own function Eb_N0_convert(), which convert SNR to Eb/N0
 Eb_N0 = Eb_N0_convert(SNR, Constellation);
 
 % Use your own function of generating of AWGN from previous tasks
 IQ_RX = Noise(SNR, IQ_TX);
+
+scatterplot(IQ_RX);
 %% Demapping
 Bit_Rx = demapping(IQ_RX, Constellation);
 
@@ -127,15 +129,15 @@ for p = 1:length(constellations)
 % You can use the cycle for collecting of data
 % Save figure
 
-    subplot(1, 2, 2);
-    plot(SNR, abs(MERm-SNR),'magenta','LineWidth',1.5);
-    xlabel('SNR (dB)');
-    ylabel('Error(MERm-SNR)');
-    title(['Ошибка между SNR и MER для ' Constellation]);
-    grid on;
-
-    name=Constellation+"_BER от SNR и от Eb_N0 и MER.png";
-    saveas(gcf,name);
+%     subplot(1, 2, 2);
+%     plot(SNR, abs(MERm-SNR),'magenta','LineWidth',1.5);
+%     xlabel('SNR (dB)');
+%     ylabel('Error(MERm-SNR)');
+%     title(['Ошибка между SNR и MER для ' Constellation]);
+%     grid on;
+% 
+%     name=Constellation+"_BER от SNR и от Eb_N0 и MER.png";
+%     saveas(gcf,name);
 end
 %% All in one (AiO)
 figure();

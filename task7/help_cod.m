@@ -1,6 +1,6 @@
 clc; clear;
 % Вводим сообщение на русском языке
-message = 'во многих мудростях много печали. но мир без печали очень странный';
+message = 'I done this task! Im winner!';
 
 % Преобразуем каждый символ в двоичный код
 binary = dec2bin(message);
@@ -16,10 +16,11 @@ seq=Scrambler(Register);
 seq(seq==0)=-1;
 len=length(seq);
 
-
 totallen=len2;
 maxdev=max_divisor_range(totallen);
 
+Register = [1 0 0 1 0 1 0 1 0]; % начальное состояние регистра
+scrseq=Scrambler(Register);
 
 function d = max_divisor_range(n)
 % Проверяем, является ли n положительным целым числом
